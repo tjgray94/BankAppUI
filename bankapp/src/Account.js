@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { updateAccount, transferFunds } from './api';
+import TransactionHistory from './TransactionHistory';
+import { updateAccount, transferFunds, getTransactionsByAccountId, submitTransaction } from './api';
 import './Account.css';
 
 const Account = () => {
@@ -9,10 +10,12 @@ const Account = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [amount, setAmount] = useState('');
   const [selectedFunction, setSelectedFunction] = useState(null);
-  const [sourceIndex, setSourceIndex] = useState(0);
-  const [destinationIndex, setDestinationIndex] = useState(1);
+  const [sourceAccountType, setSourceAccountType] = useState(null);
+  const [destinationAccountType, setDestinationAccountType] = useState(null);
+  const [transactions, setTransactions] = useState([]);
   const [showTransactionPrompt, setShowTransactionPrompt] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
 
@@ -30,7 +33,9 @@ const Account = () => {
       }
     };
 
-    fetchAccounts();
+    if (userId) {
+      fetchAccounts();
+    }
   }, [userId]);
 
   useEffect(() => {
@@ -60,25 +65,19 @@ const Account = () => {
       setSelectedAccount(account);
       setAmount('')
       setSelectedFunction(null);
-      setSourceIndex(0);
-      setDestinationIndex(1);
+      setShowHistory(false);
     }
   };
 
   const handleFunctionSelection = (func) => {
     if (selectedFunction !== func) {
       setSelectedFunction(func);
-      if (func === 'transfer') {
-        if (accounts.length > 1) {
-          setSourceIndex(0);
-          setDestinationIndex(1);
-        }
-      }
+      setShowHistory(false);
     }
   };
 
   const handleContinue = () => {
-    setShowTransactionPrompt(false); // Hide the prompt
+    setShowTransactionPrompt(false);
   };
 
   const handleNo = () => {
@@ -94,13 +93,13 @@ const Account = () => {
       if (selectedFunction !== null || amount !== '') {
         setSelectedFunction(null);
         setAmount('');
+        setShowHistory(false);
       }
     } else {
       if (selectedAccount !== null || selectedFunction !== null) {
         setSelectedAccount(null);
         setSelectedFunction(null);
-        setSourceIndex(0);
-        setDestinationIndex(1);
+        setShowHistory(false);
       }
     }
   };
@@ -113,6 +112,19 @@ const Account = () => {
       try {
         await updateAccount(userId, selectedAccount.accountId, { balance: updatedBalance });
         setSelectedAccount(prev => ({ ...prev, balance: updatedBalance }));
+
+        const transactionData = {
+          type: 'DEPOSIT',
+          sourceAccount: selectedAccount.accountType, // This represents where the money is coming from
+          destinationAccount: selectedAccount.accountType, // As a deposit, this can also be the same account
+          amount: depositAmount,
+          timestamp: new Date().toISOString()
+        };
+
+        console.log("Transaction Data Being Sent:", transactionData);
+
+        await submitTransaction(selectedAccount.accountId, transactionData);
+
         alert('Deposit successful!');
         setShowTransactionPrompt(true);
     } catch (error) {
@@ -133,6 +145,17 @@ const Account = () => {
         try {
           await updateAccount(userId, selectedAccount.accountId, { balance: updatedBalance });
           setSelectedAccount(prev => ({ ...prev, balance: updatedBalance }));
+
+          const transactionData = {
+            type: 'WITHDRAW',
+            sourceAccount: selectedAccount.accountType, // This represents where the money is coming from
+            destinationAccount: selectedAccount.accountType, // As a deposit, this can also be the same account
+            amount: withdrawAmount,
+            timestamp: new Date().toISOString()
+          };
+
+          await submitTransaction(selectedAccount.accountId, transactionData);
+
           alert('Withdrawal successful!');
           setShowTransactionPrompt(true);
       } catch (error) {
@@ -147,49 +170,118 @@ const Account = () => {
     }
   };
 
+  // Handling transfer selection
+  const handleTransferDirection = (direction) => {
+    if (direction === 'checkingToSavings') {
+      setSourceAccountType('CHECKING');
+      setDestinationAccountType('SAVINGS');
+    } else if (direction === 'savingsToChecking') {
+      setSourceAccountType('SAVINGS');
+      setDestinationAccountType('CHECKING');
+    }
+  };
+
   const handleTransfer = async () => {
     const transferAmount = parseFloat(amount);
-    if (!isNaN(transferAmount) && transferAmount > 0) {
-      if (accounts.length > 1) {
-        const sourceAccount = accounts[sourceIndex];
-        const destinationAccount = accounts[destinationIndex];
-        if (transferAmount <= sourceAccount.balance) {
-          setAmount('');
-          try {
-            await transferFunds(userId, sourceAccount.accountId, destinationAccount.accountId, transferAmount);
-            setAccounts(prevAccounts =>
-              prevAccounts.map(acc =>
-                acc.accountId === sourceAccount.accountId
-                  ? { ...acc, balance: acc.balance - transferAmount }
-                  : acc.accountId === destinationAccount.accountId
-                  ? { ...acc, balance: acc.balance + transferAmount }
-                  : acc
-              )
-            );
-            if (selectedAccount && (selectedAccount.accountId === sourceAccount.accountId || selectedAccount.accountId === destinationAccount.accountId)) {
-              setSelectedAccount(prevAccount =>
-                prevAccount.accountId === sourceAccount.accountId
-                  ? { ...prevAccount, balance: prevAccount.balance - transferAmount }
-                  : prevAccount.accountId === destinationAccount.accountId
-                  ? { ...prevAccount, balance: prevAccount.balance + transferAmount }
-                  : prevAccount
-              );
+    if (!isNaN(transferAmount) && transferAmount > 0 && sourceAccountType && destinationAccountType) {
+      const sourceAccount = accounts.find(account => account.accountType === sourceAccountType);
+      const destinationAccount = accounts.find(account => account.accountType === destinationAccountType);
+
+      if (sourceAccount && destinationAccount && transferAmount <= sourceAccount.balance) {
+        setAmount('');
+
+        try {
+          // Log the transfer transaction data for debugging
+          console.log("Transfer Transaction data:", {
+            type: 'TRANSFER',
+            sourceAccount: sourceAccount.accountType,
+            destinationAccount: destinationAccount.accountType,
+            amount: transferAmount,
+            timestamp: new Date().toISOString()
+          });
+
+          // Transfer funds (logic for updating the backend)
+          await transferFunds(userId, sourceAccount.accountId, destinationAccount.accountId, transferAmount);
+
+          // Prepare transaction data for the source account
+          const transactionData = {
+            type: 'TRANSFER',
+            sourceAccount: sourceAccount.accountType,
+            destinationAccount: destinationAccount.accountType,
+            amount: transferAmount,
+            timestamp: new Date().toISOString(),
+          };
+        
+          // Submit transaction for source account
+          await submitTransaction(sourceAccount.accountId, transactionData);
+
+          // Update account balances in the frontend
+          setAccounts(prevAccounts =>
+            prevAccounts.map(acc =>
+              acc.accountId === sourceAccount.accountId
+                ? { ...acc, balance: acc.balance - transferAmount }
+                : acc.accountId === destinationAccount.accountId
+                ? { ...acc, balance: acc.balance + transferAmount }
+                : acc
+            )
+          );
+
+          // Update selected account balance if applicable
+          if (selectedAccount) {
+            if (selectedAccount.accountId === sourceAccount.accountId) {
+                setSelectedAccount(prevAccount => ({
+                    ...prevAccount,
+                    balance: prevAccount.balance - transferAmount, // Deduct from selected source
+                }));
+            } else if (selectedAccount.accountId === destinationAccount.accountId) {
+                setSelectedAccount(prevAccount => ({
+                    ...prevAccount,
+                    balance: prevAccount.balance + transferAmount, // Add to selected destination
+                }));
             }
-            alert('Transfer successful!');
-            setShowTransactionPrompt(true);
-          } catch (error) {
-            console.error('Error updating accounts:', error);
-            alert('Error updating accounts. Please try again.');
           }
-        } else {
-          alert('Insufficient balance in source account.');
+
+          alert('Transfer successful!');
+          setShowTransactionPrompt(true);
+        } catch (error) {
+          console.error('Error updating accounts:', error);
+          alert('Error updating accounts. Please try again.');
         }
       } else {
-        alert('Please select both source and destination accounts.');
+        alert('Insufficient balance in source account.');
       }
     } else {
       alert('Please enter a valid amount.');
     }
+  };
+
+  const handleTransactionHistory = async () => {
+    try {
+      const transactionPromises = accounts.map(account =>
+        getTransactionsByAccountId(account.accountId).then(transactions =>
+          transactions.map(transaction => ({
+            ...transaction,
+            accountType: account.accountType,
+            timestamp: transaction.timestamp,
+            sourceAccount: transaction.sourceAccount || account.accountType,
+            destinationAccount: transaction.destinationAccount || account.accountType,
+          }))
+        )
+      );
+  
+      const allTransactions = await Promise.all(transactionPromises);
+      const formattedTransactions = allTransactions.flat();
+
+      setTransactions(formattedTransactions);
+      setShowHistory(true);
+    } catch (error) {
+      console.error('Error fetching transaction history:', error);
+      alert('Failed to fetch transaction history.');
+    }
+  };
+
+  const handleBackFromHistory = () => {
+    setShowHistory(false);
   };
 
   if (showTransactionPrompt) {
@@ -214,6 +306,14 @@ const Account = () => {
     );
   }
 
+  if (showHistory) {
+    return (
+      <div className="transactionHistoryScreen">
+        <TransactionHistory transactions={transactions} handleBackFromHistory={handleBackFromHistory} />
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <h2>Account Overview</h2>
@@ -221,18 +321,19 @@ const Account = () => {
           <>
           {!selectedAccount ? (
             <div className="buttonContainer">
-              {accounts.map((account, index) => (
-                <button
-                  key={account.accountNumber || index}
-                  onClick={() => handleAccountSelection(account)}
-                  className="button"
-                >
-                  {account.accountType === 'CHECKING' ? 'View Checking' : 'View Savings'}
-                </button>
-              ))}
-              <button onClick={handleLogout} className="button">
-                Logout
-              </button>
+              <div className="accountButtons">
+                {accounts.map((account, index) => (
+                  <button
+                    key={account.accountNumber || index}
+                    onClick={() => handleAccountSelection(account)}
+                    className="button"
+                  >
+                    {account.accountType === 'CHECKING' ? 'Checking' : 'Savings'}
+                  </button>
+                ))}
+                <button onClick={handleTransactionHistory} className="button">History</button>
+              </div>
+              <button onClick={handleLogout} className="button logoutButton">Logout</button>
             </div>
           ) : (
             <>
@@ -240,9 +341,8 @@ const Account = () => {
                 <h3>Balance: ${selectedAccount.balance.toFixed(2)}</h3>
               </div>
 
-              {/* Conditionally show bank function buttons or input box */}
               {!selectedFunction ? (
-                <div className="buttonContainer">
+                <div className="buttonContainerTwo">
                   <button onClick={() => handleFunctionSelection('deposit')} className="button">Deposit</button>
                   <button onClick={() => handleFunctionSelection('withdraw')} className="button">Withdraw</button>
                   {accounts.length > 1 && (
@@ -260,38 +360,40 @@ const Account = () => {
                     className="input"
                   />
                   {selectedFunction === 'transfer' && (
-                    <div className="slider-container">
+                    <div className="radio-container">
                       <label>
                         <input
-                          type="range"
-                          min="0"
-                          max={accounts.length - 1}
-                          value={sourceIndex}
-                          onChange={(e) => {
-                            const newSourceIndex = parseInt(e.target.value, 10);
-                            setSourceIndex(newSourceIndex);
-                            if (newSourceIndex === destinationIndex) {
-                              setDestinationIndex((newSourceIndex + 1) % accounts.length);
-                            }
-                          }}
-                          className="slider"
+                          type="radio"
+                          name="transferDirection"
+                          value="checkingToSavings"
+                          checked={sourceAccountType === 'CHECKING' && destinationAccountType === 'SAVINGS'}
+                          onChange={() => handleTransferDirection('checkingToSavings')}
+                          className="radio-button"
                         />
-                        <div className="slider-labels">
-                          <span>{accounts[sourceIndex]?.accountType === 'CHECKING' ? 'Checking' : 'Savings'}</span>
-                          <span>{accounts[destinationIndex]?.accountType === 'CHECKING' ? 'Checking' : 'Savings'}</span>
-                        </div>
+                        Checking to Savings
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="transferDirection"
+                          value="savingsToChecking"
+                          checked={sourceAccountType === 'SAVINGS' && destinationAccountType === 'CHECKING'} 
+                          onChange={() => handleTransferDirection('savingsToChecking')}
+                          className="radio-button"
+                        />
+                        Savings to Checking
                       </label>
                     </div>
                   )}
                   <div className="buttonContainer">
                     {selectedFunction === 'deposit' && (
-                      <button onClick={handleDeposit} className="button">Confirm Deposit</button>
+                      <button onClick={handleDeposit} className="button" disabled={!amount}>Confirm Deposit</button>
                     )}
                     {selectedFunction === 'withdraw' && (
-                      <button onClick={handleWithdraw} className="button">Confirm Withdraw</button>
+                      <button onClick={handleWithdraw} className="button" disabled={!amount}>Confirm Withdraw</button>
                     )}
                     {selectedFunction === 'transfer' && (
-                      <button onClick={handleTransfer} className="button">Confirm Transfer</button>
+                      <button onClick={handleTransfer} className="button" disabled={!amount || !sourceAccountType || !destinationAccountType}>Confirm Transfer</button>
                     )}
                     <button onClick={() => handleBack(true)} className="backButton">Back</button>
                   </div>

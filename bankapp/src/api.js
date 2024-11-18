@@ -30,4 +30,30 @@ export const transferFunds = async (userId, sourceAccountId, destinationAccountI
         destinationAccountId,
         amount,
     });
-}
+};
+
+export const submitTransaction = async (accountId, transactionData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/accounts/${accountId}/transactions`, {
+            type: transactionData.type,
+            amount: transactionData.amount,
+            sourceAccount: transactionData.sourceAccount,
+            destinationAccount: transactionData.destinationAccount,
+            timestamp: transactionData.timestamp
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting transaction:', error);
+        throw error;
+    }
+};
+
+export const getTransactionsByAccountId = async (accountId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/accounts/${accountId}/transactions`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching transactions:', error);
+        throw error;
+    }
+};

@@ -1,0 +1,20 @@
+.history-header {
+    display: flex;
+    justify-content: space-between; /* Pushes the content to the left and right */
+    align-items: center;  /* Vertically centers the items */
+    width: 100%;
+}
+
+.history-header h3 {
+    margin: 0;                      /* Ensure no margin is applied to h3 */
+    padding: 0;                     /* Remove padding from h3 */
+}
+
+.backButton {
+    padding: 4px 8px; 
+    font-size: 0.875rem; 
+    margin-left: 16px;
+    width: auto;                    /* Explicitly set the button width to auto */
+    min-width: 80px;                /* Set a minimum width to prevent it from shrinking too much */
+    max-width: 120px;          
+}

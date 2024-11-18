@@ -1,5 +1,5 @@
 # BankAppUI
-BankApp is a React-based user interface for managing banking functionalities, such as creating accounts, logging in, viewing account balances, and performing various transactions like deposits, withdrawals, and fund transfers. This project is developed with user experience in mind, ensuring smooth and responsive interactions. 
+BankApp is a React-based user interface for managing banking functionalities, such as creating accounts, logging in, viewing account balances, performing various transactions like deposits, withdrawals, and fund transfers. BankApp also has transaction logging to keep track of bank interactions. This project is developed with user experience in mind, ensuring smooth and responsive interactions. 
 
 ### Features
 - **Account Creation**: Users can register by filling in their information and selecting account types.
@@ -8,6 +8,7 @@ BankApp is a React-based user interface for managing banking functionalities, su
 - **Transaction Management**:
   - **Deposits and Withdrawals**: Users can deposit into or withdraw from their accounts.
   - **Transfers**: Transfer funds between accounts if both checking and savings accounts are available.
+  - **Logging**: All transactions(deposits, withdrawals, and transfers) are logged and can be viewed upon successful login
 - **Form Validation**: Uses react-hook-form for front-end validations on all forms.
 
 ### Technology Stack

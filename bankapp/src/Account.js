@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Typography, TextField, Box, FormControl, RadioGroup, FormControlLabel, Radio, Stack } from '@mui/material';
 import axios from 'axios';
 import TransactionHistory from './TransactionHistory';
 import { updateAccount, transferFunds, getTransactionsByAccountId, submitTransaction } from './api';
@@ -286,23 +287,23 @@ const Account = () => {
 
   if (showTransactionPrompt) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <p>Would you like to make another transaction?</p>
-        <button onClick={handleContinue} className="button">
-          Yes
-        </button>
-        <button onClick={handleNo} className="button">
-          No
-        </button>
-      </div>
+      <Box textAlign="center" mt={8}>
+        <Typography variant="h6" gutterBottom>Would you like to make another transaction?</Typography>
+        <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
+          <Button variant="contained" onClick={handleContinue}>Yes</Button>
+          <Button variant="outlined" color="secondary" onClick={handleNo}>No</Button>
+        </Stack>
+      </Box>
     );
   }
 
   if (showMessage) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px', fontSize: '24px', color: 'green' }}>
-        Thank you for banking with BankApp
-      </div>
+      <Box textAlign="center" mt={8}>
+        <Typography variant="h5" color="success.main" fontWeight="bold">
+          Thank you for banking with BankApp
+        </Typography>
+      </Box>
     );
   }
 
@@ -316,94 +317,71 @@ const Account = () => {
 
   return (
     <div className="container">
-      <h2>Account Overview</h2>
-        {accounts && accounts.length > 0 ? (
+      <Typography variant="h4">Account Overview</Typography>
+      {accounts && accounts.length > 0 ? (
+        <>
+        {!selectedAccount ? (
+          <Stack spacing={2} mt={2}>
+            {accounts.map((account, index) => (
+              <Button type="button" variant="contained" fullWidth key={account.accountNumber || index} onClick={() => handleAccountSelection(account)}>
+                {account.accountType === 'CHECKING' ? 'Checking' : 'Savings'}
+              </Button>
+            ))}
+            <Button type="button" variant="contained" fullWidth onClick={handleTransactionHistory}>History</Button>
+            <Button type="button" variant="outlined" fullWidth onClick={handleLogout}>Logout</Button>
+          </Stack>
+        ) : (
           <>
-          {!selectedAccount ? (
-            <div className="buttonContainer">
-              <div className="accountButtons">
-                {accounts.map((account, index) => (
-                  <button
-                    key={account.accountNumber || index}
-                    onClick={() => handleAccountSelection(account)}
-                    className="button"
-                  >
-                    {account.accountType === 'CHECKING' ? 'Checking' : 'Savings'}
-                  </button>
-                ))}
-                <button onClick={handleTransactionHistory} className="button">History</button>
-              </div>
-              <button onClick={handleLogout} className="button logoutButton">Logout</button>
-            </div>
-          ) : (
-            <>
-              <div className="balance">
-                <h3>Balance: ${selectedAccount.balance.toFixed(2)}</h3>
-              </div>
+          <Typography variant="h6">Balance: ${selectedAccount.balance.toFixed(2)}</Typography>
 
-              {!selectedFunction ? (
-                <div className="buttonContainerTwo">
-                  <button onClick={() => handleFunctionSelection('deposit')} className="button">Deposit</button>
-                  <button onClick={() => handleFunctionSelection('withdraw')} className="button">Withdraw</button>
-                  {accounts.length > 1 && (
-                    <button onClick={() => handleFunctionSelection('transfer')} className="button">Transfer</button>
-                  )}
-                  <button onClick={() => handleBack(false)} className="backButton">Back</button>
-                </div>
-              ) : (
-                <div className="form">
-                  <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder={`Enter amount to ${selectedFunction}`}
-                    className="input"
-                  />
-                  {selectedFunction === 'transfer' && (
-                    <div className="radio-container">
-                      <label>
-                        <input
-                          type="radio"
-                          name="transferDirection"
-                          value="checkingToSavings"
-                          checked={sourceAccountType === 'CHECKING' && destinationAccountType === 'SAVINGS'}
-                          onChange={() => handleTransferDirection('checkingToSavings')}
-                          className="radio-button"
-                        />
-                        Checking to Savings
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="transferDirection"
-                          value="savingsToChecking"
-                          checked={sourceAccountType === 'SAVINGS' && destinationAccountType === 'CHECKING'} 
-                          onChange={() => handleTransferDirection('savingsToChecking')}
-                          className="radio-button"
-                        />
-                        Savings to Checking
-                      </label>
-                    </div>
-                  )}
-                  <div className="buttonContainer">
-                    {selectedFunction === 'deposit' && (
-                      <button onClick={handleDeposit} className="button" disabled={!amount}>Confirm Deposit</button>
-                    )}
-                    {selectedFunction === 'withdraw' && (
-                      <button onClick={handleWithdraw} className="button" disabled={!amount}>Confirm Withdraw</button>
-                    )}
-                    {selectedFunction === 'transfer' && (
-                      <button onClick={handleTransfer} className="button" disabled={!amount || !sourceAccountType || !destinationAccountType}>Confirm Transfer</button>
-                    )}
-                    <button onClick={() => handleBack(true)} className="backButton">Back</button>
-                  </div>
-                </div>
+          {!selectedFunction ? (
+            <Stack spacing={2} mt={2}>
+              <Button type="button" variant="contained" fullWidth onClick={() => handleFunctionSelection('deposit')}>Deposit</Button>
+              <Button type="button" variant="contained" fullWidth onClick={() => handleFunctionSelection('withdraw')}>Withdraw</Button>
+              {accounts.length > 1 && (
+                <Button type="button" variant="contained" fullWidth onClick={() => handleFunctionSelection('transfer')}>Transfer</Button>
               )}
-            </>
+              <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(false)}>Back</Button>
+            </Stack>
+          ) : (
+            <div className="form">
+              <TextField type="number" value={amount} fullWidth margin="normal"
+                onChange={(e) => setAmount(e.target.value)}
+                label={`Enter amount to ${selectedFunction}`}
+              />
+              {selectedFunction === 'transfer' && (
+                <FormControl component="fieldset" margin="normal">
+                  <RadioGroup name="transferDirection" onChange={(e) => handleTransferDirection(e.target.value)}
+                    value={sourceAccountType === 'CHECKING' && destinationAccountType === 'SAVINGS'
+                      ? 'checkingToSavings'
+                      : sourceAccountType === 'SAVINGS' && destinationAccountType === 'CHECKING'
+                      ? 'savingsToChecking' : ''
+                    }
+                  >
+                    <FormControlLabel value="checkingToSavings" control={<Radio />} label="Checking to Savings" />
+                    <FormControlLabel value="savingsToChecking" control={<Radio />} label="Savings to Checking" />
+                  </RadioGroup>
+                </FormControl>
+              )}
+              <Stack spacing={2} mt={2}>
+                {selectedFunction === 'deposit' && (
+                  <Button type="button" variant="contained" fullWidth onClick={handleDeposit} disabled={!amount}>Confirm Deposit</Button>
+                )}
+                {selectedFunction === 'withdraw' && (
+                  <Button type="button" variant="contained" fullWidth onClick={handleWithdraw} disabled={!amount}>Confirm Withdraw</Button>
+                )}
+                {selectedFunction === 'transfer' && (
+                  <Button type="button" variant="contained" fullWidth onClick={handleTransfer} disabled={!amount || !sourceAccountType || !destinationAccountType}>Confirm Transfer</Button>
+                )}
+                <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(true)}>Back</Button>
+              </Stack>
+            </div>
           )}
+          </>
+        )}
         </>
       ) : (
-        <p>Loading account details...</p>
+        <Typography>No accounts found.</Typography>
       )}
     </div>
   );

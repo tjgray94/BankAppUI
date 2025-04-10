@@ -1,82 +1,11 @@
 .container {
-    text-align: center;
-    margin: 20px auto;
-    width: 300px;
-}
-  
-.balance {
-    margin: 20px 0;
+  text-align: center;
+  margin: 20px auto;
+  width: 300px;
 }
 
 .form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.input {
-    margin: 10px 0;
-    padding: 10px;
-    width: 100%;
-}
-
-.buttonContainerTwo {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.buttonContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.accountButtons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Space between Checking and Savings buttons */
-}
-
-.button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    width: 100%; /* Full width for vertical alignment */
-}
-
-.button:disabled {
-    background-color: gray; /* gray color for disabled state */
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.logoutButton {
-    margin-top: 20px; /* Space between the account buttons and the Logout button */
-    align-self: flex-start; /* Align Logout button away from other buttons */
-}
-
-.backButton {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    flex-grow: 1;
-}
-
-.radio-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Optional: adds space between the radio buttons */
-}
-
-.radio-button {
-    margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

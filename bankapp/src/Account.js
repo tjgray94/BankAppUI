@@ -187,26 +187,24 @@ const Account = () => {
               <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(false)}>Back</Button>
             </Stack>
           ) : (
-            <div className="form">
-              <Stack spacing={2} mt={2}>
-                {selectedFunction === 'deposit' && selectedAccount && (
-                  <Deposit userId={userId} selectedAccount={selectedAccount} updateAccount={updateAccount} 
-                    submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
-                  />
-                )}
-                {selectedFunction === 'withdraw' && selectedAccount && (
-                  <Withdraw userId={userId} selectedAccount={selectedAccount} updateAccount={updateAccount} 
-                    submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
-                  />
-                )}
-                {selectedFunction === 'transfer' && selectedAccount && (
-                  <Transfer userId={userId} accounts={accounts} selectedAccount={selectedAccount} setAccounts={setAccounts} updateAccount={updateAccount} 
-                    submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
-                  />
-                )}
-                <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(true)}>Back</Button>
-              </Stack>
-            </div>
+            <Stack spacing={2} mt={2}>
+              {selectedFunction === 'deposit' && selectedAccount && (
+                <Deposit userId={userId} selectedAccount={selectedAccount} updateAccount={updateAccount} 
+                  submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
+                />
+              )}
+              {selectedFunction === 'withdraw' && selectedAccount && (
+                <Withdraw userId={userId} selectedAccount={selectedAccount} updateAccount={updateAccount} 
+                  submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
+                />
+              )}
+              {selectedFunction === 'transfer' && selectedAccount && (
+                <Transfer userId={userId} accounts={accounts} selectedAccount={selectedAccount} setAccounts={setAccounts} updateAccount={updateAccount} 
+                  submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
+                />
+              )}
+              <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(true)}>Back</Button>
+            </Stack>
           )}
           </>
         )}

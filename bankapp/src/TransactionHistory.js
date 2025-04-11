@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Box, Stack, Divider } from '@mui/material';
+import { getTransactionsByAccountId } from './api';
 
-const TransactionHistory = ({ transactions, handleBackFromHistory }) => {
+const TransactionHistory = ({ userId, accounts, handleBackFromHistory }) => {
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    const fetchAllTransactions = async () => {
+      try {
+        const transactionPromises = accounts.map(account =>
+          getTransactionsByAccountId(account.accountId).then(transactions =>
+            transactions.map(transaction => ({
+              ...transaction,
+              accountType: account.accountType,
+              timestamp: transaction.timestamp,
+              sourceAccount: transaction.sourceAccount || account.accountType,
+              destinationAccount: transaction.destinationAccount || account.accountType,
+            }))
+          )
+        );
+
+        const allTransactions = await Promise.all(transactionPromises);
+        const formattedTransactions = allTransactions.flat();
+        setTransactions(formattedTransactions);
+      } catch (error) {
+        console.error('Error fetching transaction history:', error);
+      }
+    };
+
+    if (accounts.length > 0 && userId) {
+      fetchAllTransactions();
+    }
+  }, [accounts, userId]);
+
   // Sorts transactions in descending order (most recent first)
-  const sortedTransactions = transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const sortedTransactions = [...transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
     <Box sx={{ maxWidth: '90%', margin: '2rem auto' }}>

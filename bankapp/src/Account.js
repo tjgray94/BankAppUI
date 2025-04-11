@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Typography, Box, Stack } from '@mui/material';
 import axios from 'axios';
 import TransactionHistory from './TransactionHistory';
-import { updateAccount, getTransactionsByAccountId, submitTransaction } from './api';
+import { updateAccount, submitTransaction } from './api';
 import Deposit from './Deposit';
 import Withdraw from './Withdraw';
 import Transfer from './Transfer';
@@ -14,7 +14,6 @@ const Account = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [amount, setAmount] = useState('');
   const [selectedFunction, setSelectedFunction] = useState(null);
-  const [transactions, setTransactions] = useState([]);
   const [showTransactionPrompt, setShowTransactionPrompt] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -99,30 +98,9 @@ const Account = () => {
     }
   };
 
-  const handleTransactionHistory = async () => {
-    try {
-      const transactionPromises = accounts.map(account =>
-        getTransactionsByAccountId(account.accountId).then(transactions =>
-          transactions.map(transaction => ({
-            ...transaction,
-            accountType: account.accountType,
-            timestamp: transaction.timestamp,
-            sourceAccount: transaction.sourceAccount || account.accountType,
-            destinationAccount: transaction.destinationAccount || account.accountType,
-          }))
-        )
-      );
-  
-      const allTransactions = await Promise.all(transactionPromises);
-      const formattedTransactions = allTransactions.flat();
-
-      setTransactions(formattedTransactions);
-      setShowHistory(true);
-    } catch (error) {
-      console.error('Error fetching transaction history:', error);
-      alert('Failed to fetch transaction history.');
-    }
-  };
+  const handleTransactionHistory = () => {
+    setShowHistory(true);
+  }
 
   const handleBackFromHistory = () => {
     setShowHistory(false);
@@ -153,7 +131,7 @@ const Account = () => {
   if (showHistory) {
     return (
       <div className="transactionHistoryScreen">
-        <TransactionHistory transactions={transactions} handleBackFromHistory={handleBackFromHistory} />
+        <TransactionHistory userId={userId} accounts={accounts} handleBackFromHistory={handleBackFromHistory} />
       </div>
     );
   }

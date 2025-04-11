@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { createUser } from './api';
-import { Button, Typography, Paper, Box, Stack, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, Grid2 } from '@mui/material';
+import { Button, Typography, Paper, Box, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, Grid2 } from '@mui/material';
 import './CreateAccount.css';
 
 const FormInput = ({ name, label, type, validation }) => {

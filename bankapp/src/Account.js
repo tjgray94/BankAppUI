@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, TextField, Box, FormControl, RadioGroup, FormControlLabel, Radio, Stack } from '@mui/material';
+import { Button, Typography, Box, Stack } from '@mui/material';
 import axios from 'axios';
 import TransactionHistory from './TransactionHistory';
-import { updateAccount, transferFunds, getTransactionsByAccountId, submitTransaction } from './api';
+import { updateAccount, getTransactionsByAccountId, submitTransaction } from './api';
+import Deposit from './Deposit';
+import Withdraw from './Withdraw';
+import Transfer from './Transfer';
 import './Account.css';
 
 const Account = () => {
@@ -11,8 +14,6 @@ const Account = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [amount, setAmount] = useState('');
   const [selectedFunction, setSelectedFunction] = useState(null);
-  const [sourceAccountType, setSourceAccountType] = useState(null);
-  const [destinationAccountType, setDestinationAccountType] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [showTransactionPrompt, setShowTransactionPrompt] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
@@ -70,13 +71,6 @@ const Account = () => {
     }
   };
 
-  const handleFunctionSelection = (func) => {
-    if (selectedFunction !== func) {
-      setSelectedFunction(func);
-      setShowHistory(false);
-    }
-  };
-
   const handleContinue = () => {
     setShowTransactionPrompt(false);
   };
@@ -102,157 +96,6 @@ const Account = () => {
         setSelectedFunction(null);
         setShowHistory(false);
       }
-    }
-  };
-
-  const handleDeposit = async () => {
-    const depositAmount = parseFloat(amount);
-    if (!isNaN(depositAmount) && depositAmount > 0) {
-      const updatedBalance = selectedAccount.balance + depositAmount;
-      setAmount('');
-      try {
-        await updateAccount(userId, selectedAccount.accountId, { balance: updatedBalance });
-        setSelectedAccount(prev => ({ ...prev, balance: updatedBalance }));
-
-        const transactionData = {
-          type: 'DEPOSIT',
-          sourceAccount: selectedAccount.accountType, // This represents where the money is coming from
-          destinationAccount: selectedAccount.accountType, // As a deposit, this can also be the same account
-          amount: depositAmount,
-          timestamp: new Date().toISOString()
-        };
-
-        console.log("Transaction Data Being Sent:", transactionData);
-
-        await submitTransaction(selectedAccount.accountId, transactionData);
-
-        alert('Deposit successful!');
-        setShowTransactionPrompt(true);
-    } catch (error) {
-        console.error('Error updating account:', error);
-        alert('Error updating account. Please try again.');
-    }
-    } else {
-      alert('Please enter a valid amount.');
-    }
-  };
-
-  const handleWithdraw = async () => {
-    const withdrawAmount = parseFloat(amount);
-    if (!isNaN(withdrawAmount) && withdrawAmount > 0) {
-      if (withdrawAmount <= selectedAccount.balance) {
-        const updatedBalance = selectedAccount.balance - withdrawAmount;
-        setAmount('');
-        try {
-          await updateAccount(userId, selectedAccount.accountId, { balance: updatedBalance });
-          setSelectedAccount(prev => ({ ...prev, balance: updatedBalance }));
-
-          const transactionData = {
-            type: 'WITHDRAW',
-            sourceAccount: selectedAccount.accountType, // This represents where the money is coming from
-            destinationAccount: selectedAccount.accountType, // As a deposit, this can also be the same account
-            amount: withdrawAmount,
-            timestamp: new Date().toISOString()
-          };
-
-          await submitTransaction(selectedAccount.accountId, transactionData);
-
-          alert('Withdrawal successful!');
-          setShowTransactionPrompt(true);
-      } catch (error) {
-          console.error('Error updating account:', error);
-          alert('Error updating account. Please try again.');
-      }
-      } else {
-        alert('Insufficient balance.');
-      }
-    } else {
-      alert('Please enter a valid amount.');
-    }
-  };
-
-  // Handling transfer selection
-  const handleTransferDirection = (direction) => {
-    if (direction === 'checkingToSavings') {
-      setSourceAccountType('CHECKING');
-      setDestinationAccountType('SAVINGS');
-    } else if (direction === 'savingsToChecking') {
-      setSourceAccountType('SAVINGS');
-      setDestinationAccountType('CHECKING');
-    }
-  };
-
-  const handleTransfer = async () => {
-    const transferAmount = parseFloat(amount);
-    if (!isNaN(transferAmount) && transferAmount > 0 && sourceAccountType && destinationAccountType) {
-      const sourceAccount = accounts.find(account => account.accountType === sourceAccountType);
-      const destinationAccount = accounts.find(account => account.accountType === destinationAccountType);
-
-      if (sourceAccount && destinationAccount && transferAmount <= sourceAccount.balance) {
-        setAmount('');
-
-        try {
-          // Log the transfer transaction data for debugging
-          console.log("Transfer Transaction data:", {
-            type: 'TRANSFER',
-            sourceAccount: sourceAccount.accountType,
-            destinationAccount: destinationAccount.accountType,
-            amount: transferAmount,
-            timestamp: new Date().toISOString()
-          });
-
-          // Transfer funds (logic for updating the backend)
-          await transferFunds(userId, sourceAccount.accountId, destinationAccount.accountId, transferAmount);
-
-          // Prepare transaction data for the source account
-          const transactionData = {
-            type: 'TRANSFER',
-            sourceAccount: sourceAccount.accountType,
-            destinationAccount: destinationAccount.accountType,
-            amount: transferAmount,
-            timestamp: new Date().toISOString(),
-          };
-        
-          // Submit transaction for source account
-          await submitTransaction(sourceAccount.accountId, transactionData);
-
-          // Update account balances in the frontend
-          setAccounts(prevAccounts =>
-            prevAccounts.map(acc =>
-              acc.accountId === sourceAccount.accountId
-                ? { ...acc, balance: acc.balance - transferAmount }
-                : acc.accountId === destinationAccount.accountId
-                ? { ...acc, balance: acc.balance + transferAmount }
-                : acc
-            )
-          );
-
-          // Update selected account balance if applicable
-          if (selectedAccount) {
-            if (selectedAccount.accountId === sourceAccount.accountId) {
-                setSelectedAccount(prevAccount => ({
-                    ...prevAccount,
-                    balance: prevAccount.balance - transferAmount, // Deduct from selected source
-                }));
-            } else if (selectedAccount.accountId === destinationAccount.accountId) {
-                setSelectedAccount(prevAccount => ({
-                    ...prevAccount,
-                    balance: prevAccount.balance + transferAmount, // Add to selected destination
-                }));
-            }
-          }
-
-          alert('Transfer successful!');
-          setShowTransactionPrompt(true);
-        } catch (error) {
-          console.error('Error updating accounts:', error);
-          alert('Error updating accounts. Please try again.');
-        }
-      } else {
-        alert('Insufficient balance in source account.');
-      }
-    } else {
-      alert('Please enter a valid amount.');
     }
   };
 
@@ -336,42 +179,30 @@ const Account = () => {
 
           {!selectedFunction ? (
             <Stack spacing={2} mt={2}>
-              <Button type="button" variant="contained" fullWidth onClick={() => handleFunctionSelection('deposit')}>Deposit</Button>
-              <Button type="button" variant="contained" fullWidth onClick={() => handleFunctionSelection('withdraw')}>Withdraw</Button>
+              <Button type="button" variant="contained" fullWidth onClick={() => setSelectedFunction('deposit')}>Deposit</Button>
+              <Button type="button" variant="contained" fullWidth onClick={() => setSelectedFunction('withdraw')}>Withdraw</Button>
               {accounts.length > 1 && (
-                <Button type="button" variant="contained" fullWidth onClick={() => handleFunctionSelection('transfer')}>Transfer</Button>
+                <Button type="button" variant="contained" fullWidth onClick={() => setSelectedFunction('transfer')}>Transfer</Button>
               )}
               <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(false)}>Back</Button>
             </Stack>
           ) : (
             <div className="form">
-              <TextField type="number" value={amount} fullWidth margin="normal"
-                onChange={(e) => setAmount(e.target.value)}
-                label={`Enter amount to ${selectedFunction}`}
-              />
-              {selectedFunction === 'transfer' && (
-                <FormControl component="fieldset" margin="normal">
-                  <RadioGroup name="transferDirection" onChange={(e) => handleTransferDirection(e.target.value)}
-                    value={sourceAccountType === 'CHECKING' && destinationAccountType === 'SAVINGS'
-                      ? 'checkingToSavings'
-                      : sourceAccountType === 'SAVINGS' && destinationAccountType === 'CHECKING'
-                      ? 'savingsToChecking' : ''
-                    }
-                  >
-                    <FormControlLabel value="checkingToSavings" control={<Radio />} label="Checking to Savings" />
-                    <FormControlLabel value="savingsToChecking" control={<Radio />} label="Savings to Checking" />
-                  </RadioGroup>
-                </FormControl>
-              )}
               <Stack spacing={2} mt={2}>
-                {selectedFunction === 'deposit' && (
-                  <Button type="button" variant="contained" fullWidth onClick={handleDeposit} disabled={!amount}>Confirm Deposit</Button>
+                {selectedFunction === 'deposit' && selectedAccount && (
+                  <Deposit userId={userId} selectedAccount={selectedAccount} updateAccount={updateAccount} 
+                    submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
+                  />
                 )}
-                {selectedFunction === 'withdraw' && (
-                  <Button type="button" variant="contained" fullWidth onClick={handleWithdraw} disabled={!amount}>Confirm Withdraw</Button>
+                {selectedFunction === 'withdraw' && selectedAccount && (
+                  <Withdraw userId={userId} selectedAccount={selectedAccount} updateAccount={updateAccount} 
+                    submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
+                  />
                 )}
-                {selectedFunction === 'transfer' && (
-                  <Button type="button" variant="contained" fullWidth onClick={handleTransfer} disabled={!amount || !sourceAccountType || !destinationAccountType}>Confirm Transfer</Button>
+                {selectedFunction === 'transfer' && selectedAccount && (
+                  <Transfer userId={userId} accounts={accounts} selectedAccount={selectedAccount} setAccounts={setAccounts} updateAccount={updateAccount} 
+                    submitTransaction={submitTransaction} setSelectedAccount={setSelectedAccount} setShowTransactionPrompt={setShowTransactionPrompt}
+                  />
                 )}
                 <Button type="button" variant="outlined" fullWidth onClick={() => handleBack(true)}>Back</Button>
               </Stack>

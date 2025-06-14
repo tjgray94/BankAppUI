@@ -14,10 +14,10 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  max-width: 600px;
   width: 100%;
   position: relative;
   margin: 0 auto;
+  max-width: 500px;
 }
 
 .card-header {
@@ -41,7 +41,7 @@
 }
 
 .card-content {
-  padding: 30px;
+  padding: 25px 20px;
 }
 
 .form-field {
@@ -50,7 +50,7 @@
 
 .input {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   margin: 6px 0;
   border: 1px solid #c8e6c9;
   border-radius: 4px;
@@ -103,14 +103,14 @@ label {
 
 .account-type-section {
   background-color: rgba(200, 230, 201, 0.2);
-  padding: 16px;
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid #c8e6c9;
 }
 
 .balance-section {
   background-color: rgba(200, 230, 201, 0.1);
-  padding: 16px;
+  padding: 12px;
   border-radius: 8px;
   margin-top: 8px;
 }

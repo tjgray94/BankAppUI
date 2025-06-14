@@ -1,0 +1,84 @@
+.home-container {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.logo-container {
+  margin-bottom: 30px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.logo {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  margin: 0 auto;
+}
+
+.card-header {
+  background: linear-gradient(90deg, #2e7d32, #388e3c);
+  padding: 25px 0;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  opacity: 0.6;
+}
+
+.card-content {
+  padding: 30px;
+}
+
+.button-primary {
+  background: linear-gradient(90deg, #2e7d32, #43a047) !important;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(46, 125, 50, 0.4) !important;
+}
+
+.button-secondary {
+  border: 2px solid #43a047 !important;
+  color: #2e7d32 !important;
+  transition: all 0.3s ease !important;
+}
+
+.button-secondary:hover {
+  background-color: rgba(67, 160, 71, 0.08) !important;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .card {
+    width: 90%;
+  }
+}

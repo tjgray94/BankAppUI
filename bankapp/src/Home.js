@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Typography, Box, Stack, Paper, Avatar } from '@mui/material';
+import { Button, Typography, Box, Stack, Paper, Avatar, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { keyframes } from '@emotion/react';
 import './Home.css';
@@ -36,33 +36,85 @@ const fadeIn = keyframes`
 `;
 
 function Home() {
-	return (
-    <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh"
-      sx={{ background: 'linear-gradient(135deg, #e0f7fa, #80deea, #26c6da)' }}
-    >
-      <Avatar alt="BankApp Logo" src="/bankapp_icon.png"
-        sx={{ width: 100, height: 100, marginBottom: 3, animation: `${fadeIn} 2s ease-out forwards` }}
-      />
+  return (
+    <Box className="home-container">
+      <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box className="logo-container">
+          <Avatar 
+            alt="BankApp Logo" 
+            src="/bankapp_icon.png"
+            className="logo"
+            sx={{ 
+              width: 120, 
+              height: 120, 
+              animation: `${fadeIn} 1.5s ease-out forwards` 
+            }}
+          />
+        </Box>
 
-      <Paper elevation={3} sx={{ p: 6, textAlign: 'center', minWidth: 300 }}>
-        <Typography variant="h3" gutterBottom sx={{animation: `${fadeSlideDown} 1s ease-out forwards`}}>Welcome to BankApp!</Typography>
-        <Typography variant="subtitle1" gutterBottom sx={{animation: `${fadeSlideUp} 1s ease-out 0.4s forwards`, opacity: 0}}>Your trusted partner in banking.</Typography>
+        <Paper elevation={0} className="card">
+          <Box className="card-header">
+            <Typography 
+              variant="h3" 
+              align="center"
+              sx={{ 
+                fontWeight: 600, 
+                animation: `${fadeSlideDown} 1s ease-out forwards`,
+                fontSize: { xs: '2rem', md: '2.5rem' }
+              }}
+            >
+              Welcome to BankApp
+            </Typography>
+          </Box>
+          
+          <Box className="card-content">
+            <Typography 
+              variant="h6" 
+              align="center" 
+              color="text.secondary"
+              sx={{ 
+                animation: `${fadeSlideUp} 1s ease-out 0.4s forwards`, 
+                opacity: 0,
+                mb: 4,
+                fontWeight: 400
+              }}
+            >
+              Your trusted partner for secure and efficient banking
+            </Typography>
 
-        <Stack spacing={2} direction="row" justifyContent="center" mt={4}>
-          <Button variant="contained" component={Link} to="/create-account"
-            sx={{ backgroundColor: '#007BFF', '&:hover': { backgroundColor: '#0056b3' } }}
-          >
-            Create Account
-          </Button>
-          <Button variant="outlined" component={Link} to="/login"
-            sx={{ color: '#007BFF', borderColor: '#007BFF', '&:hover': { color: '#0056b3', borderColor: '#0056b3' }, opacity: 0, animation: `${fadeIn} 1s ease-out 1s forwards` }}
-          >
-            Login
-          </Button>
-        </Stack>
-      </Paper>
+            <Stack 
+              spacing={3} 
+              direction={{ xs: 'column', sm: 'row' }} 
+              justifyContent="center" 
+              mt={3}
+              sx={{ animation: `${fadeIn} 1s ease-out 0.8s forwards`, opacity: 0 }}
+            >
+              <Button 
+                variant="contained" 
+                component={Link} 
+                to="/create-account"
+                size="large"
+                className="button-primary"
+                fullWidth
+              >
+                Create Account
+              </Button>
+              <Button 
+                variant="outlined" 
+                component={Link} 
+                to="/login"
+                size="large"
+                className="button-secondary"
+                fullWidth
+              >
+                Login
+              </Button>
+            </Stack>
+          </Box>
+        </Paper>
+      </Container>
     </Box>
-	)
+  );
 }
 
 export default Home;

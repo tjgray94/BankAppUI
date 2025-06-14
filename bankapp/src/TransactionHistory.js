@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Typography, Box, Stack, Divider } from '@mui/material';
 import { getTransactionsByAccountId } from './api';
+import { keyframes } from '@emotion/react';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to { 
+    opacity: 1
+  }
+`;
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
 
 const TransactionHistory = ({ userId, accounts, handleBackFromHistory }) => {
   const [transactions, setTransactions] = useState([]);
@@ -37,44 +52,91 @@ const TransactionHistory = ({ userId, accounts, handleBackFromHistory }) => {
   const sortedTransactions = [...transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
-    <Box sx={{ maxWidth: '90%', margin: '2rem auto' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" gutterBottom>Transaction History</Typography>
-        <Button onClick={handleBackFromHistory} variant="outlined">Back</Button>
-      </Stack>
-
-      <Divider sx={{ mb: 2 }} />
-
-      <TableContainer component={Paper} elevation={3}>
-        {transactions.length > 0 ? (
-          <Table>
-            <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableRow>
-                <TableCell><strong>Timestamp</strong></TableCell>
-                <TableCell><strong>Type</strong></TableCell>
-                <TableCell><strong>Description</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedTransactions.map((transaction, index) => (
-                <TableRow key={index}>
-                  <TableCell>{transaction.timestamp}</TableCell>
-                  <TableCell>{transaction.type}</TableCell>
-                  <TableCell>
-                    {transaction.type === 'TRANSFER'
-                      ? `$${transaction.amount} from ${transaction.sourceAccount} to ${transaction.destinationAccount}`
-                      : `$${transaction.amount} ${transaction.type === 'DEPOSIT' ? 'to' : 'from'} ${transaction.sourceAccount}`
-                    }
-                  </TableCell>
+    <Paper elevation={0} className="card" sx={{ 
+      animation: `${fadeIn} 0.8s ease-out forwards`,
+      maxWidth: '600px',
+      width: '100%'
+    }}>
+      <Box className="card-header">
+        <Typography variant="h4" sx={{ fontWeight: 600 }}>
+          Transaction History
+        </Typography>
+      </Box>
+      
+      <Box className="card-content">
+        <TableContainer component={Paper} elevation={0} sx={{ 
+          borderRadius: '8px',
+          overflow: 'hidden',
+          border: '1px solid #e0e0e0',
+          mb: 3,
+          width: '100%'
+        }}>
+          {transactions.length > 0 ? (
+            <Table sx={{ tableLayout: 'fixed' }}>
+              <TableHead sx={{ backgroundColor: 'rgba(46, 125, 50, 0.1)' }}>
+                <TableRow>
+                  <TableCell width="30%" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>Date & Time</TableCell>
+                  <TableCell width="20%" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>Type</TableCell>
+                  <TableCell width="50%" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>Description</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <Typography variant="body1" align="center" p={2}>No transactions available</Typography>
-        )}
-      </TableContainer>
-    </Box>
+              </TableHead>
+              <TableBody>
+                {sortedTransactions.map((transaction, index) => (
+                  <TableRow 
+                    key={index}
+                    sx={{ 
+                      '&:nth-of-type(odd)': { backgroundColor: 'rgba(200, 230, 201, 0.1)' },
+                      '&:hover': { backgroundColor: 'rgba(200, 230, 201, 0.2)' }
+                    }}
+                  >
+                    <TableCell>{formatDate(transaction.timestamp)}</TableCell>
+                    <TableCell>
+                      <Box sx={{ 
+                        display: 'inline-block',
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        backgroundColor: transaction.type === 'DEPOSIT' 
+                          ? 'rgba(46, 125, 50, 0.1)' 
+                          : transaction.type === 'WITHDRAW' 
+                            ? 'rgba(211, 47, 47, 0.1)' 
+                            : 'rgba(33, 150, 243, 0.1)',
+                        color: transaction.type === 'DEPOSIT' 
+                          ? '#2e7d32' 
+                          : transaction.type === 'WITHDRAW' 
+                            ? '#d32f2f' 
+                            : '#2196f3'
+                      }}>
+                        {transaction.type}
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                      {transaction.type === 'TRANSFER'
+                        ? <><strong>${transaction.amount}</strong> from {transaction.sourceAccount} to {transaction.destinationAccount}</>
+                        : <><strong>${transaction.amount}</strong> {transaction.type === 'DEPOSIT' ? 'to' : 'from'} {transaction.sourceAccount}</>
+                      }
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <Typography variant="body1" align="center" p={3}>No transactions available</Typography>
+          )}
+        </TableContainer>
+        
+        <Button 
+          variant="outlined" 
+          fullWidth 
+          className="button-secondary"
+          onClick={handleBackFromHistory}
+        >
+          Back to Accounts
+        </Button>
+      </Box>
+    </Paper>
   );
 }
 

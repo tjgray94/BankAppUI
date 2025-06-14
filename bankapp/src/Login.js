@@ -47,7 +47,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Error during authentication:', error);
-      setLoginError('Error during authentication. Please try again.');
+      setLoginError('Invalid email or PIN. Please try again.');
     }
   };
 

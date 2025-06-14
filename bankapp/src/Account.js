@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, Box, Stack, Paper, Divider } from '@mui/material';
+import { Button, Typography, Box, Stack, Paper, Divider, Avatar } from '@mui/material';
 import axios from 'axios';
 import TransactionHistory from './TransactionHistory';
 import { updateAccount, submitTransaction } from './api';
@@ -16,6 +16,20 @@ const fadeIn = keyframes`
   }
   to { 
     opacity: 1
+  }
+`;
+
+const bounceIn = keyframes`
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
   }
 `;
 
@@ -134,15 +148,55 @@ const Account = () => {
     return (
       <Box className="account-container">
         <Paper elevation={0} className="card" sx={{ animation: `${fadeIn} 0.8s ease-out forwards` }}>
-          <Box className="card-header">
-            <Typography variant="h4" sx={{ fontWeight: 600 }}>
-              Thank You
-            </Typography>
-          </Box>
           <Box className="card-content message-container">
-            <Typography variant="h6" color="success.main" fontWeight="500">
-              Thank you for banking with BankApp
-            </Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              py: 4
+            }}>
+              <Avatar 
+                sx={{ 
+                  bgcolor: '#2e7d32', 
+                  width: 80, 
+                  height: 80, 
+                  mb: 3,
+                  animation: `${bounceIn} 1s ease-out forwards`
+                }}
+              >
+                <Typography variant="h4">✓</Typography>
+              </Avatar>
+              
+              <Typography 
+                variant="h5" 
+                color="#2e7d32" 
+                fontWeight="600"
+                sx={{ mb: 2 }}
+              >
+                Thank You
+              </Typography>
+              
+              <Typography 
+                variant="body1" 
+                color="text.secondary"
+                align="center"
+                sx={{ mb: 3 }}
+              >
+                Thank you for banking with BankApp.
+                <br />
+                We look forward to serving you again!
+              </Typography>
+              
+              <Box 
+                sx={{ 
+                  width: '100%', 
+                  height: '4px', 
+                  background: 'linear-gradient(90deg, #2e7d32, #43a047)',
+                  borderRadius: '2px',
+                  mt: 2
+                }}
+              />
+            </Box>
           </Box>
         </Paper>
       </Box>

@@ -1,0 +1,116 @@
+.create-account-container {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  margin: 0 auto;
+}
+
+.card-header {
+  background: linear-gradient(90deg, #2e7d32, #388e3c);
+  padding: 20px 0;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.card-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  opacity: 0.6;
+}
+
+.card-content {
+  padding: 30px;
+}
+
+.form-field {
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border: 1px solid #c8e6c9;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+label {
+  font-weight: 500;
+  color: #424242;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.button-primary {
+  background: linear-gradient(90deg, #2e7d32, #43a047) !important;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(46, 125, 50, 0.4) !important;
+}
+
+.button-secondary {
+  border: 2px solid #43a047 !important;
+  color: #2e7d32 !important;
+  transition: all 0.3s ease !important;
+}
+
+.button-secondary:hover {
+  background-color: rgba(67, 160, 71, 0.08) !important;
+  transform: translateY(-2px);
+}
+
+.account-type-section {
+  background-color: rgba(200, 230, 201, 0.2);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #c8e6c9;
+}
+
+.balance-section {
+  background-color: rgba(200, 230, 201, 0.1);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 8px;
+}

@@ -55,12 +55,11 @@ const Login = () => {
     <Box className="login-container">
       <Paper elevation={0} className="card" sx={{ animation: `${fadeIn} 0.8s ease-out forwards` }}>
         <Box className="card-header">
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              fontWeight: 600,
-              fontSize: { xs: '1.8rem', md: '2.2rem' }
-            }}
+          <Typography variant="h4" 
+                      sx={{ 
+                        fontWeight: 600,
+                        fontSize: { xs: '1.8rem', md: '2.2rem' }
+                      }}
           >
             Login to BankApp
           </Typography>
@@ -68,7 +67,7 @@ const Login = () => {
 
         <Box className="card-content">
           <form onSubmit={handleSubmit(handleLogin)} noValidate>
-            <Stack spacing={3} sx={{ animation: `${fadeSlideUp} 0.8s ease-out forwards` }}>
+            <Stack spacing={3} sx={{ animation: `${fadeSlideUp} 0.8s ease-out forwards` }} direction="column">
               {loginError && (
                 <Alert severity="error" sx={{ animation: `${fadeIn} 0.5s ease-out forwards` }}>
                   {loginError}
@@ -128,20 +127,11 @@ const Login = () => {
               />
 
               <Box display="flex" gap={2} mt={2}>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
-                  fullWidth
-                  className="button-primary"
-                >
+                <Button type="submit" className="button-primary" variant="contained" fullWidth>
                   Login 
                 </Button>
-                <Button 
-                  type="button" 
-                  onClick={() => navigate(-1)} 
-                  variant="outlined" 
-                  fullWidth
-                  className="button-secondary"
+                <Button type="button" className="button-secondary" onClick={() => navigate(-1)} 
+                        variant="outlined" fullWidth
                 >
                   Back
                 </Button>

@@ -112,7 +112,7 @@ function CreateAccount() {
                 />
                 <FormInput name="pin" label="PIN" type="password"
                   validation={{
-                    required: 'PIN is required',
+                    required: 'PIN is required!',
                     minLength: { value: 4, message: 'PIN must be exactly 4 digits' },
                     maxLength: { value: 4, message: 'PIN must be exactly 4 digits' },
                     pattern: { value: /^\d{4}$/, message: 'PIN must contain only numbers' }
@@ -143,7 +143,7 @@ function CreateAccount() {
                 </Box>
                 {accountType && (
                   <Box className="balance-section">
-                    <Stack direction={{ xs: 'column', sm: accountType === 'both' ? 'row' : 'column' }} spacing={2}>
+                    <Stack direction={{ xs: 'column', sm: 'column' }} spacing={2}>
                       {(accountType === 'checking' || accountType === 'both') && (
                         <FormInput name="checkingBalance" label="Starting Checking Balance" type="number" 
                           validation={{

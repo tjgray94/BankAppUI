@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { createUser } from './api';
-import { Button, Typography, Paper, Box, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, Grid2, Divider, Stack } from '@mui/material';
+import { Button, Typography, Paper, Box, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, Divider, Stack } from '@mui/material';
 import { keyframes } from '@emotion/react';
 import './CreateAccount.css';
 
@@ -34,6 +34,7 @@ function CreateAccount() {
       lastName: '',
       email: '',
       password: '',
+      confirmPassword: '',
       pin: '',
       accountType: '',
       checkingBalance: 0,
@@ -43,13 +44,14 @@ function CreateAccount() {
   const accountType = methods.watch('accountType');
 
   const onSubmit = async (data) => {
-    console.log("Submitting data:", JSON.stringify(data, null, 2));
+    const { confirmPassword, ...userData } = data;
+    console.log("Submitting data:", JSON.stringify(userData, null, 2));
     try {
       const response = await createUser({
-        ...data,
-        accountType: data.accountType,
-        checkingBalance: data.checkingBalance || 0,
-        savingsBalance: data.savingsBalance || 0
+        ...userData,
+        accountType: userData.accountType,
+        checkingBalance: userData.checkingBalance || 0,
+        savingsBalance: userData.savingsBalance || 0
       });
       alert('Account created successfully!');
       console.log('User created:', response.data);
@@ -75,7 +77,6 @@ function CreateAccount() {
             Create a New Account
           </Typography>
         </Box>
-
         <Box className="card-content">
           <FormProvider {...methods}>
 
@@ -99,7 +100,7 @@ function CreateAccount() {
                   validation={{
                     required: 'Email is required!',
                     pattern: { 
-                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, 
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                       message: 'Enter a valid email address' 
                     }
                   }}
@@ -108,6 +109,13 @@ function CreateAccount() {
                   validation={{
                     required: 'Password is required!',
                     minLength: { value: 8, message: 'Password must be at least 8 characters' }
+                  }}
+                />
+                <FormInput name="confirmPassword" label="Confirm Password" type="password"
+                  validation={{
+                    required: 'Please confirm your password!',
+                    validate: value =>
+                      value === methods.getValues('password') || 'Passwords do not match'
                   }}
                 />
                 <FormInput name="pin" label="PIN" type="password"
